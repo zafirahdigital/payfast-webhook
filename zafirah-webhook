@@ -1,0 +1,35 @@
+<?php
+// =======================================
+// PAYFAST → WHATSAPP PAYMENT ALERT WEBHOOK
+// Author: Hamza
+// =======================================
+
+// Step 1: Read PayFast POST data
+$data = file_get_contents('php://input');
+parse_str($data, $result);
+
+// Extract important info
+$amount = $result['amount_gross'] ?? '0';
+$pf_payment_id = $result['pf_payment_id'] ?? 'N/A';
+$payer_name = $result['name_first'] ?? 'Customer';
+$payer_number = $result['custom_str1'] ?? ''; // optional, you can send number with transaction
+
+// Step 2: Prepare WhatsApp message
+$message = "✅ Payment Received!\n\nName: $payer_name\nAmount: Rs. $amount\nPayment ID: $pf_payment_id\n\nThank you for your payment! - Zafirah";
+
+// Step 3: Send WhatsApp message via your API
+$api_key = "7d76206d8e197b62f70e1756fa3dd114";
+$whatsapp_number = $payer_number; // should be in +923 format
+
+$api_url = "https://api.veevotech.com/v3/sendMessage?hash=$api_key&receivernum=$whatsapp_number&textmessage=" . urlencode($message);
+
+// Send it
+$response = file_get_contents($api_url);
+
+// Log response
+file_put_contents("webhook_log.txt", date('Y-m-d H:i:s') . " | $response\n", FILE_APPEND);
+
+// Return OK
+http_response_code(200);
+echo "OK";
+?>
