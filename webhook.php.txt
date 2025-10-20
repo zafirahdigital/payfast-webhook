@@ -1,0 +1,31 @@
+<?php
+// ==============================
+// UNIVERSAL WEBHOOK → WhatsApp + SMS
+// Author: Hamza
+// Hosted on Render or cPanel
+// ==============================
+
+// Step 1: Read incoming POST data
+$data = file_get_contents('php://input');
+$payload = json_decode($data, true);
+
+// Step 2: Extract useful info (example: payment confirmation)
+$phone = $payload['customer_phone'] ?? '+923xxxxxxxxx';
+$message = "Hi! Your payment has been received successfully. Thank you for shopping with Zafirah 🛍️";
+
+// Step 3: Send WhatsApp message
+$whatsapp_api = "https://your-whatsapp-api-endpoint.com/send";
+$whatsapp_key = "7d76206d8e197b62f70e1756fa3dd114";
+
+$whatsapp_url = $whatsapp_api . "?key=$whatsapp_key&to=$phone&message=" . urlencode($message);
+file_get_contents($whatsapp_url);
+
+// Step 4: Send SMS using VeevoTech
+$sms_key = "cb760fffc5549efe2303664ed70c94e3";
+$sms_url = "https://api.veevotech.com/v3/sendsms?hash=$sms_key&receivernum=$phone&sendernum=zafirah&textmessage=" . urlencode($message);
+file_get_contents($sms_url);
+
+// Step 5: Respond to confirm
+http_response_code(200);
+echo "Webhook received and messages sent.";
+?>
